@@ -33,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.graphicsLayer
+import it.zoryon.verso.core.ui.theme.Primary
+import it.zoryon.verso.core.ui.theme.Secondary
 
 @Composable
 fun FloatingBottomBar(
@@ -45,7 +47,7 @@ fun FloatingBottomBar(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 20.dp),
         shape = RoundedCornerShape(100),
-        color = Color.White,
+        color = Secondary,
         shadowElevation = 12.dp,
     ) {
         NavigationBar(
@@ -118,7 +120,7 @@ fun FloatingBottomBar(
                         Icon(
                             imageVector = item.icon,
                             contentDescription = item.label,
-                            tint = if (isSelected) Color(0xFF229ED9) else Color.Gray,
+                            tint = if (isSelected) Primary else Color.White,
                             modifier = Modifier.size(24.dp)
                         )
 
@@ -126,7 +128,7 @@ fun FloatingBottomBar(
                             text = item.label,
                             fontSize = 13.sp,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF229ED9) else Color.Gray
+                            color = if (isSelected) Primary else Color.White
                         )
                     }
                 }
