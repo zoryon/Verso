@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.documentfile:documentfile:1.0.1")
 
     val media3Version = "1.2.1"
     implementation("androidx.media3:media3-exoplayer:$media3Version")

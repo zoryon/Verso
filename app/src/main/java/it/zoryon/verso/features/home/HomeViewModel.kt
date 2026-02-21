@@ -1,6 +1,8 @@
 package it.zoryon.verso.features.home
 
 import android.content.Context
+import android.net.Uri
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -9,16 +11,23 @@ import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import it.zoryon.verso.core.utils.ytExtractor.YtExtractorEngine
+import it.zoryon.verso.domain.cache.AudioCacheManager
 import it.zoryon.verso.domain.model.HomeStateModel
 import it.zoryon.verso.domain.model.YouTubeVideoModel
+import it.zoryon.verso.domain.repository.SettingsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.net.URL
 import javax.inject.Inject
+import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeStateModel())
@@ -28,9 +37,9 @@ class HomeViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
     private val player = ExoPlayer.Builder(context).build()
+    private val audioCache = AudioCacheManager()
 
     init {
-        println("DEBUG: HomeViewModel Inizializzato")
         setupPlayerListener()
         setupSearchDebounce()
     }
@@ -51,30 +60,25 @@ class HomeViewModel @Inject constructor(
                 .filter { it.isNotEmpty() } // search if there's at least 1 character
                 .distinctUntilChanged()
                 .collect { query ->
-                    println("DEBUG: Debounce scattato per: $query")
                     performSearch(query, isNextPage = false)
                 }
         }
     }
 
     fun onQueryChange(newQuery: String) {
-        println("DEBUG: onQueryChange -> $newQuery")
         _state.update { it.copy(query = newQuery) }
         _searchQuery.value = newQuery
     }
 
     fun performSearch(query: String, isNextPage: Boolean) {
         if (_state.value.isLoading || (isNextPage && _state.value.results.size >= MAX_RESULTS)) {
-            println("DEBUG: performSearch BLOCCATO (isLoading=${_state.value.isLoading}, size=${_state.value.results.size})")
             return
         }
-        println("DEBUG: Avvio performSearch per: $query (isNextPage=$isNextPage)")
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val newVideos = YtExtractorEngine.search(query)
-                println("DEBUG: Engine ha restituito ${newVideos.size} video")
 
                 _state.update { s ->
                     val updatedList = if (isNextPage) s.results + newVideos else newVideos
@@ -83,9 +87,7 @@ class HomeViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
-                println("DEBUG: Stato aggiornato. Totale risultati in lista: ${_state.value.results.size}")
             } catch (e: Exception) {
-                println("DEBUG: ERRORE in performSearch: ${e.message}")
                 e.printStackTrace()
                 _state.update { it.copy(isLoading = false, errorMessage = "Errore durante la ricerca") }
             }
@@ -93,25 +95,71 @@ class HomeViewModel @Inject constructor(
     }
 
     fun fetchAudioAndPlay(video: YouTubeVideoModel) {
-        println("DEBUG: Richiesta Audio per: ${video.title}")
         viewModelScope.launch {
             try {
-                val audioUrl = YtExtractorEngine.getAudioUrl(video.id)
-                if (audioUrl != null) {
-                    println("DEBUG: Audio URL ottenuto, avvio riproduzione...")
+                val audioUrl = audioCache.getOrPut(video.id) {
+                    YtExtractorEngine.getAudioUrl(video.id)
+                }
 
+                if (audioUrl != null) {
                     val mediaItem = MediaItem.fromUri(audioUrl)
                     player.setMediaItem(mediaItem)
                     player.prepare()
                     player.play()
                     _state.update { it.copy(currentVideo = video)}
                 } else {
-                    println("DEBUG: ERRORE: Nessun URL audio restituito")
                     _state.update { it.copy(errorMessage = "Nessun flusso audio disponibile") }
                 }
             } catch (e: Exception) {
-                println("DEBUG: ERRORE fetchAudio: ${e.message}")
                 _state.update { it.copy(errorMessage = "Impossibile recuperare l'audio") }
+            }
+        }
+    }
+
+    fun fetchAudioForDownload(video: YouTubeVideoModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Get download folder
+            val treeUriString = settingsRepository.downloadPath.first()
+
+            if (treeUriString == "Seleziona cartella...") return@launch
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Download iniziato: ${video.title}", Toast.LENGTH_SHORT).show()
+            }
+
+            try {
+                val audioUrl = audioCache.getOrPut(video.id) {
+                    YtExtractorEngine.getAudioUrl(video.id)
+                } ?: return@launch
+
+                val treeUri = Uri.parse(treeUriString)
+
+                val pickedDir = DocumentFile.fromTreeUri(context, treeUri)
+                    ?: return@launch
+
+                // sanitize filename (avoid illegal characters)
+                val safeTitle = video.title
+                    .replace("[^a-zA-Z0-9._-]".toRegex(), "_")
+
+                val newFile = pickedDir.createFile(
+                    "audio/mpeg",
+                    "$safeTitle.mp3"
+                ) ?: return@launch
+
+                URL(audioUrl).openStream().use { input ->
+                    context.contentResolver.openOutputStream(newFile.uri)?.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Download completato: ${video.title}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Download fallito: ${video.title}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

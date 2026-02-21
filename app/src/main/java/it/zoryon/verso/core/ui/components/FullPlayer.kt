@@ -49,7 +49,7 @@ fun FullPlayer(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp, vertical = 50.dp),
+            .padding(horizontal = 24.dp, vertical = 65.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Handle

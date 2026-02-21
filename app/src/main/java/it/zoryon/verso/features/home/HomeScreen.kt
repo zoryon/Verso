@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,13 +37,21 @@ import it.zoryon.verso.core.ui.components.MiniPlayer
 import it.zoryon.verso.core.ui.components.SearchBar
 import it.zoryon.verso.core.ui.components.VideoResultRow
 import it.zoryon.verso.core.ui.theme.TextSecondary
+import it.zoryon.verso.domain.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -62,7 +71,7 @@ fun HomeScreen(
                     VideoResultRow(
                         video = video,
                         onPlay = { viewModel.fetchAudioAndPlay(video) },
-                        onDownload = { /* Logica download */ }
+                        onDownload = { viewModel.fetchAudioForDownload(video) }
                     )
 
                     // Trigger to load new videos once arrived at the end of the page
