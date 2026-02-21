@@ -1,6 +1,8 @@
 package it.zoryon.verso.features.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,8 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,17 +31,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import it.zoryon.verso.core.ui.components.FullPlayer
 import it.zoryon.verso.core.ui.components.MiniPlayer
 import it.zoryon.verso.core.ui.components.SearchBar
 import it.zoryon.verso.core.ui.components.VideoResultRow
 import it.zoryon.verso.core.ui.theme.TextSecondary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -69,13 +77,17 @@ fun HomeScreen(
 
                 item {
                     if (state.isLoading) {
-                        Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                         }
                     } else if (state.results.size >= 30) {
                         Text(
                             text = "Fine dei risultati",
-                            modifier = Modifier.fillMaxWidth().padding(24.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.labelMedium,
                             color = TextSecondary
@@ -85,19 +97,41 @@ fun HomeScreen(
             }
         }
 
+        // Mini Player
         AnimatedVisibility(
             visible = state.currentVideo != null,
             modifier = Modifier.align(Alignment.BottomCenter),
-            enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }),
-            exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it })
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it })
         ) {
             state.currentVideo?.let { video ->
                 MiniPlayer(
                     video = video,
                     isPlaying = state.isPlaying,
                     onPlayPauseClick = { viewModel.togglePlayPause() },
+                    onExpand = { viewModel.setPlayerExpanded(true) },
                     modifier = Modifier.padding(bottom = 0.dp)
                 )
+            }
+        }
+
+        // Full Player
+        if (state.isPlayerExpanded) {
+            ModalBottomSheet(
+                onDismissRequest = { viewModel.setPlayerExpanded(false) },
+                sheetState = sheetState,
+                dragHandle = null, // We have a custom handle in the Full Player
+                containerColor = MaterialTheme.colorScheme.background,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                state.currentVideo?.let { video ->
+                    FullPlayer(
+                        video = video,
+                        isPlaying = state.isPlaying,
+                        onPlayPauseClick = { viewModel.togglePlayPause() },
+                        onCollapse = { viewModel.setPlayerExpanded(false) }
+                    )
+                }
             }
         }
     }

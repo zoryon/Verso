@@ -7,5 +7,7 @@ data class HomeStateModel(
     val errorMessage: String? = null,
 
     val currentVideo: YouTubeVideoModel? = null,
-    val isPlaying: Boolean = false
+    val isPlaying: Boolean = false,
+
+    val isPlayerExpanded: Boolean = false
 )

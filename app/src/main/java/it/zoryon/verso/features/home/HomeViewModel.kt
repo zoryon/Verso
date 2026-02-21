@@ -124,6 +124,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // Expand the MiniPlayer into a Modal Bottom Sheet
+    fun setPlayerExpanded(expanded: Boolean) {
+        _state.update { it.copy(isPlayerExpanded = expanded) }
+    }
+
     // Release resources when app/screen is left
     override fun onCleared() {
         super.onCleared()

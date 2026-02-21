@@ -26,6 +26,7 @@ fun MiniPlayer(
     video: YouTubeVideoModel,
     isPlaying: Boolean,
     onPlayPauseClick: () -> Unit,
+    onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -33,7 +34,7 @@ fun MiniPlayer(
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 0.dp)
             .height(64.dp)
-            .clickable { /* EXPAND TO FULL PLAYER */ },
+            .clickable { onExpand() },
         color = Background,
         tonalElevation = 8.dp,
     ) {
