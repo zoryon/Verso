@@ -1,8 +1,13 @@
 package it.zoryon.verso.features.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import it.zoryon.verso.core.utils.ytExtractor.YtExtractorEngine
 import it.zoryon.verso.domain.model.HomeStateModel
 import it.zoryon.verso.domain.model.YouTubeVideoModel
@@ -12,19 +17,30 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
+class HomeViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeStateModel())
     val state: StateFlow<HomeStateModel> = _state.asStateFlow()
 
-    private var currentQuery = ""
     private val MAX_RESULTS = 30
 
     private val _searchQuery = MutableStateFlow("")
+    private val player = ExoPlayer.Builder(context).build()
 
     init {
         println("DEBUG: HomeViewModel Inizializzato")
+        setupPlayerListener()
         setupSearchDebounce()
+    }
+
+    private fun setupPlayerListener() {
+        player.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _state.update { it.copy(isPlaying = isPlaying) }
+            }
+        })
     }
 
     @OptIn(FlowPreview::class)
@@ -81,13 +97,36 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             try {
                 val audioUrl = YtExtractorEngine.getAudioUrl(video.id)
-                println("DEBUG: Audio URL ottenuto: $audioUrl")
-                _state.update { it.copy(currentlyPlayingUrl = audioUrl) }
-                // HERE WE WILL CALL OUR PLAYER FOR THE AUDIO
+                if (audioUrl != null) {
+                    println("DEBUG: Audio URL ottenuto, avvio riproduzione...")
+
+                    val mediaItem = MediaItem.fromUri(audioUrl)
+                    player.setMediaItem(mediaItem)
+                    player.prepare()
+                    player.play()
+                    _state.update { it.copy(currentVideo = video)}
+                } else {
+                    println("DEBUG: ERRORE: Nessun URL audio restituito")
+                    _state.update { it.copy(errorMessage = "Nessun flusso audio disponibile") }
+                }
             } catch (e: Exception) {
                 println("DEBUG: ERRORE fetchAudio: ${e.message}")
                 _state.update { it.copy(errorMessage = "Impossibile recuperare l'audio") }
             }
         }
+    }
+
+    fun togglePlayPause() {
+        if (player.isPlaying) {
+            player.pause()
+        } else {
+            player.play()
+        }
+    }
+
+    // Release resources when app/screen is left
+    override fun onCleared() {
+        super.onCleared()
+        player.release()
     }
 }

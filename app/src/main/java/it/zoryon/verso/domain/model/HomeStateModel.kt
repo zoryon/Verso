@@ -5,5 +5,7 @@ data class HomeStateModel(
     val results: List<YouTubeVideoModel> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val currentlyPlayingUrl: String? = null
+
+    val currentVideo: YouTubeVideoModel? = null,
+    val isPlaying: Boolean = false
 )
