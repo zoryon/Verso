@@ -1,4 +1,4 @@
-package it.zoryon.verso.core.ui.components
+package it.zoryon.verso.core.ui.components.settings_menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

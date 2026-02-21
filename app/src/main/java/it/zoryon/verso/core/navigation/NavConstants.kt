@@ -1,9 +1,9 @@
 package it.zoryon.verso.core.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
 object NavConstants {
@@ -26,7 +26,7 @@ sealed class NavItem(
     object Library : NavItem(
         route = NavConstants.LIBRARY_ROUTE,
         label = "Library",
-        icon = Icons.Default.Star
+        icon = Icons.Default.Folder
     )
 
     object Settings : NavItem(

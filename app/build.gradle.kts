@@ -40,6 +40,13 @@ android {
 
 dependencies {
 
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.github.TeamNewPipe:NewPipeExtractor:v0.25.2")
+
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")

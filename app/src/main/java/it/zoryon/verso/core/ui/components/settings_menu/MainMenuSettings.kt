@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import it.zoryon.verso.core.ui.components.SettingsRow
 import it.zoryon.verso.core.ui.theme.Secondary
 import it.zoryon.verso.core.utils.SettingItems
 
