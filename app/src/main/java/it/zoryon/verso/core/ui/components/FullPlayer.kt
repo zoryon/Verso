@@ -1,6 +1,7 @@
 package it.zoryon.verso.core.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,7 @@ fun FullPlayer(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Handle
@@ -57,6 +58,7 @@ fun FullPlayer(
                 .size(width = 40.dp, height = 4.dp)
                 .clip(RoundedCornerShape(2.dp))
                 .background(Color.Gray.copy(alpha = 0.5f))
+                .clickable(onClick = onCollapse)
         )
 
         Spacer(modifier = Modifier.height(48.dp))
