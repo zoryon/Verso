@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.zoryon.verso.core.navigation.BottomBarViewModel
 import androidx.compose.runtime.collectAsState
+import it.zoryon.verso.features.library.LibraryScreen
 
 @Composable
 fun AppLayout(nav: BottomBarViewModel = viewModel()) {
@@ -48,6 +49,7 @@ fun AppLayout(nav: BottomBarViewModel = viewModel()) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavConstants.HOME_ROUTE) { HomeScreen(navController) }
+            composable(NavConstants.LIBRARY_ROUTE) { LibraryScreen(navController) }
             composable(NavConstants.SETTINGS_ROUTE) { SettingsScreen(navController) }
         }
     }
