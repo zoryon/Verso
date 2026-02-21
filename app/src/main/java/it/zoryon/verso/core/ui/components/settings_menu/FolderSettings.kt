@@ -1,4 +1,4 @@
-package it.zoryon.verso.features.settings
+package it.zoryon.verso.core.ui.components.settings_menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import it.zoryon.verso.core.ui.theme.Secondary
 
 @Composable
-fun DownloadFolderSettings(
+fun FolderSettings(
     currentPath: String,
     onBack: () -> Unit,
     onPathClick: () -> Unit

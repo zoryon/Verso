@@ -15,6 +15,8 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import it.zoryon.verso.core.ui.components.settings_menu.FolderSettings
+import it.zoryon.verso.core.ui.components.settings_menu.MainMenuSettings
 
 @Composable
 fun SettingsScreen(
@@ -70,7 +72,7 @@ fun SettingsScreen(
                 MainMenuSettings(onNavigateToDownload = { viewModel.navigateToDownload() })
             }
             SettingsState.DOWNLOAD_FOLDER -> {
-                DownloadFolderSettings(
+                FolderSettings(
                     currentPath = downloadPath,
                     onBack = { viewModel.navigateBack() },
                     onPathClick = {
