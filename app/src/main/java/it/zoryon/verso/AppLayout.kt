@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.zoryon.verso.core.navigation.NavConstants
 import it.zoryon.verso.core.navigation.NavItem
@@ -17,7 +16,6 @@ import it.zoryon.verso.features.settings.SettingsScreen
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.zoryon.verso.core.navigation.BottomBarViewModel
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 
 @Composable

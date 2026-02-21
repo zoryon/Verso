@@ -1,50 +1,80 @@
 package it.zoryon.verso.features.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import android.content.Intent
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
-import it.zoryon.verso.core.ui.components.SettingsRow
-import it.zoryon.verso.core.ui.theme.Secondary
-import it.zoryon.verso.core.utils.SettingItems
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun SettingsScreen(navController: NavController) {
-    val settingsOptions = remember { SettingItems.list }
+fun SettingsScreen(
+    navController: NavController,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val currentScreenState by viewModel.currentScreenState.collectAsState()
+    val downloadPath by viewModel.downloadPath.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(modifier = Modifier.height(60.dp))
+    val directoryPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let {
+            // Makes write permission constant
+            context.contentResolver.takePersistableUriPermission(
+                it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            // Update folder path
+            viewModel.updateDownloadPath(it.toString())
+        }
+    }
 
-        // Menu
-        Column(
-            modifier = Modifier
-                .widthIn(max = 500.dp) // 500dp max on large screens
-                .fillMaxWidth() // 100% on small screens
-                .clip(RoundedCornerShape(16.dp))
-                .background(Secondary)
-        ) {
-            settingsOptions.forEach { option ->
-                SettingsRow(
-                    item = option,
-                    onClick = { id ->
-                        println("Cliccato su: $id")
+    BackHandler(enabled = currentScreenState != SettingsState.MAIN_MENU) {
+        viewModel.navigateBack()
+    }
+
+    AnimatedContent(
+        targetState = currentScreenState,
+        transitionSpec = {
+            if (targetState == SettingsState.DOWNLOAD_FOLDER) {
+                slideInHorizontally(
+                    animationSpec = tween(300),
+                    initialOffsetX = { fullWidth -> fullWidth }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = tween(300),
+                    targetOffsetX = { fullWidth -> -fullWidth }
+                )
+            } else {
+                slideInHorizontally(
+                    animationSpec = tween(300),
+                    initialOffsetX = { fullWidth -> -fullWidth }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = tween(300),
+                    targetOffsetX = { fullWidth -> fullWidth }
+                )
+            }
+        },
+        label = "Settings Navigation"
+    ) {state ->
+        when (state) {
+            SettingsState.MAIN_MENU -> {
+                MainMenuSettings(onNavigateToDownload = { viewModel.navigateToDownload() })
+            }
+            SettingsState.DOWNLOAD_FOLDER -> {
+                DownloadFolderSettings(
+                    currentPath = downloadPath,
+                    onBack = { viewModel.navigateBack() },
+                    onPathClick = {
+                        directoryPickerLauncher.launch(null)
                     }
                 )
             }

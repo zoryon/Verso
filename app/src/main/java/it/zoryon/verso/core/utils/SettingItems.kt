@@ -8,9 +8,9 @@ import it.zoryon.verso.core.ui.theme.IconBackground
 object SettingItems {
     val list = listOf(
         SettingsItemModel(
-            id = "folder",
-            title = "Folder",
-            subtitle = "Choose your download folder",
+            id = "cartelle",
+            title = "Cartelle",
+            subtitle = "Gestisci le tue cartelle",
             icon = Icons.Default.Build,
             iconContainerColor = IconBackground
         )
