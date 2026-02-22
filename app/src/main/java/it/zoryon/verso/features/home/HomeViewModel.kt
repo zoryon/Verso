@@ -42,16 +42,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         setupSearchDebounce()
-        setupPlayerListener()
-        startProgressUpdater()
-    }
-
-    private fun setupPlayerListener() {
-        player.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _state.update { it.copy(isPlaying = isPlaying) }
-            }
-        })
     }
 
     @OptIn(FlowPreview::class)
@@ -92,33 +82,6 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
                 _state.update { it.copy(isLoading = false, errorMessage = "Errore durante la ricerca") }
-            }
-        }
-    }
-
-    fun fetchAudioAndPlay(video: YouTubeVideoModel) {
-        viewModelScope.launch {
-            try {
-                val audioUrl = audioCache.getOrPut(video.id) {
-                    YtExtractorEngine.getAudioUrl(video.id)
-                }
-                val index = _state.value.results.indexOf(video)
-                if (index == -1) return@launch
-
-                if (audioUrl != null) {
-                    val mediaItem = MediaItem.fromUri(audioUrl)
-                    player.setMediaItem(mediaItem)
-                    player.prepare()
-                    player.play()
-                    _state.update {it.copy(
-                        currentVideo = video,
-                        currentIndex = index
-                    )}
-                } else {
-                    _state.update { it.copy(errorMessage = "Nessun flusso audio disponibile") }
-                }
-            } catch (e: Exception) {
-                _state.update { it.copy(errorMessage = "Impossibile recuperare l'audio") }
             }
         }
     }
@@ -169,59 +132,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun togglePlayPause() {
-        if (player.isPlaying) {
-            player.pause()
-        } else {
-            player.play()
-        }
-    }
-
-    // Expand the MiniPlayer into a Modal Bottom Sheet
-    fun setPlayerExpanded(expanded: Boolean) {
-        _state.update { it.copy(isPlayerExpanded = expanded) }
-    }
-
-    // Progress bar for songs' duration
-    private fun startProgressUpdater() {
-        viewModelScope.launch {
-            while (true) {
-                if (player.isPlaying) {
-                    _state.update {
-                        it.copy(
-                            playbackPosition = player.currentPosition,
-                            duration = if (player.duration > 0) player.duration else 0L
-                        )
-                    }
-                }
-                kotlinx.coroutines.delay(500)
-            }
-        }
-    }
-
-    fun playNext() {
-        val state = _state.value
-        val nextIndex = state.currentIndex + 1
-        if (nextIndex >= state.results.size) return
-
-        fetchAudioAndPlay(state.results[nextIndex])
-    }
-
-    fun playPrevious() {
-        val state = _state.value
-        val prevIndex = state.currentIndex - 1
-        if (prevIndex < 0) return
-
-        fetchAudioAndPlay(state.results[prevIndex])
-    }
-
-    fun seekTo(position: Float) {
-        val duration = player.duration
-        if (duration <= 0) return
-        val newPosition = (duration * position).toLong()
-        player.seekTo(newPosition)
     }
 
     // Release resources when app/screen is left

@@ -30,7 +30,7 @@ import it.zoryon.verso.domain.model.YouTubeVideoModel
 fun VideoResultRow(
     video: YouTubeVideoModel,
     onPlay: () -> Unit,
-    onDownload: () -> Unit
+    onDownload: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -78,12 +78,14 @@ fun VideoResultRow(
                     tint = Primary
                 )
             }
-            IconButton(onClick = onDownload) {
-                Icon(
-                    imageVector = Icons.Default.Download,
-                    contentDescription = "Download",
-                    tint = TextSecondary
-                )
+            if (onDownload != null) {
+                IconButton(onClick = onDownload) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = "Download",
+                        tint = TextSecondary
+                    )
+                }
             }
         }
     }

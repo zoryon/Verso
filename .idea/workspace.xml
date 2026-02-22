@@ -10,13 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5591af4c-4b20-4966-8332-c75246e67e1c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/core/ui/components/FullPlayer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/core/ui/components/FullPlayer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/AppLayout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/AppLayout.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/core/ui/components/VideoResultRow.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/core/ui/components/VideoResultRow.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/domain/model/HomeStateModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/domain/model/HomeStateModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/home/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/home/HomeScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/home/HomeViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/home/HomeViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/library/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/it/zoryon/verso/features/library/LibraryScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
