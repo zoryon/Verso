@@ -55,6 +55,7 @@ class LibraryViewModel @Inject constructor(
 
                 YouTubeVideoModel(
                     id = file.uri.toString(), // the content:// URI for the player
+                    url = file.uri.toString(),
                     title = title,
                     author = author,
                     thumbnailUrl = file.uri.toString(), // use the URI itself to load the embedded art

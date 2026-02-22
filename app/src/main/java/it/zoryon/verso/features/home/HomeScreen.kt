@@ -60,10 +60,10 @@ fun HomeScreen(
                     )
 
                     // Trigger to load new videos once arrived at the end of the page
-                    if (index == state.results.size - 1 &&
-                        state.results.size < 30 &&
-                        !state.isLoading) {
-                        LaunchedEffect(Unit) {
+                    LaunchedEffect(state.results.size) {
+                        if (state.results.isNotEmpty() &&
+                            state.results.size < 30 &&
+                            !state.isLoading) {
                             viewModel.performSearch(state.query, isNextPage = true)
                         }
                     }

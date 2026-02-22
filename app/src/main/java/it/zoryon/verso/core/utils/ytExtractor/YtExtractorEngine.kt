@@ -18,7 +18,8 @@ object YtExtractorEngine {
             extractor.initialPage.items.mapNotNull { item ->
                 if (item is StreamInfoItem) {
                     YouTubeVideoModel(
-                        id = item.url,
+                        id = extractYtVideoId(item.url),
+                        url = item.url,
                         title = item.name,
                         author = item.uploaderName ?: "Sconosciuto",
                         thumbnailUrl = item.thumbnails.firstOrNull()?.url ?: "",
@@ -28,16 +29,17 @@ object YtExtractorEngine {
             }
         }
 
-    suspend fun getAudioUrl(videoUrl: String): String? =
-        withContext(Dispatchers.IO) {
-            val service = ServiceList.YouTube
-            val extractor = service.getStreamExtractor(videoUrl)
+    suspend fun getAudioUrl(videoUrl: String): String? = withContext(Dispatchers.IO) {
+        val service = ServiceList.YouTube
+        val extractor = service.getStreamExtractor(videoUrl)
 
-            extractor.fetchPage()
+        extractor.fetchPage()
 
-            extractor
-                .audioStreams
-                .maxByOrNull { it.bitrate }
-                ?.content
-        }
+        extractor
+            .audioStreams
+            .maxByOrNull { it.bitrate }
+            ?.content
+    }
+
+    private fun extractYtVideoId(url: String): String = android.net.Uri.parse(url).getQueryParameter("v") ?: url
 }

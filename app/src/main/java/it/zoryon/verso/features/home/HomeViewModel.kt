@@ -1,6 +1,7 @@
 package it.zoryon.verso.features.home
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +22,8 @@ import javax.inject.Inject
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import com.mpatric.mp3agic.Mp3File
+import com.mpatric.mp3agic.ID3v24Tag
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -96,7 +99,7 @@ class HomeViewModel @Inject constructor(
 
             try {
                 val audioUrl = audioCache.getOrPut(video.id) {
-                    YtExtractorEngine.getAudioUrl(video.id)
+                    YtExtractorEngine.getAudioUrl(video.url)
                 } ?: return@launch
 
                 val treeUri = treeUriString.toUri()

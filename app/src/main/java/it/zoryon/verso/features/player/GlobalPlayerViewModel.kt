@@ -56,13 +56,13 @@ class GlobalPlayerViewModel @Inject constructor(
             try {
                 // Check if it's a local file (from Library) or remote (from Home)
                 // Local files from DocumentFile usually start with content://
-                val isLocalFile = video.id.startsWith("content://") || video.id.startsWith("file://")
+                val isLocalFile = video.url.startsWith("content://") || video.id.startsWith("file://")
 
                 val mediaUri = if (isLocalFile) {
-                    Uri.parse(video.id)
+                    Uri.parse(video.url)
                 } else {
                     val audioUrl = audioCache.getOrPut(video.id) {
-                        YtExtractorEngine.getAudioUrl(video.id)
+                        YtExtractorEngine.getAudioUrl(video.url)
                     }
                     if (audioUrl != null) Uri.parse(audioUrl) else null
                 }

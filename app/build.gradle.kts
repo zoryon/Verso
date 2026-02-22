@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-video:2.7.0")
     implementation("com.mpatric:mp3agic:0.9.1")
     implementation("androidx.documentfile:documentfile:1.0.1")
 
