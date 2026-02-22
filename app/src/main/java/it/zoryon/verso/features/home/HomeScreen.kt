@@ -37,6 +37,7 @@ import it.zoryon.verso.core.ui.components.MiniPlayer
 import it.zoryon.verso.core.ui.components.SearchBar
 import it.zoryon.verso.core.ui.components.VideoResultRow
 import it.zoryon.verso.core.ui.theme.TextSecondary
+import it.zoryon.verso.core.utils.formatTime
 import it.zoryon.verso.domain.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -137,8 +138,14 @@ fun HomeScreen(
                     FullPlayer(
                         video = video,
                         isPlaying = state.isPlaying,
+                        position = state.playbackPosition,
+                        duration = state.duration,
+                        onSeek = { viewModel.seekTo(it) },
+                        onNext = { viewModel.playNext() },
+                        onPrevious = { viewModel.playPrevious() },
                         onPlayPauseClick = { viewModel.togglePlayPause() },
-                        onCollapse = { viewModel.setPlayerExpanded(false) }
+                        onCollapse = { viewModel.setPlayerExpanded(false) },
+                        formatTime = { formatTime(it) }
                     )
                 }
             }

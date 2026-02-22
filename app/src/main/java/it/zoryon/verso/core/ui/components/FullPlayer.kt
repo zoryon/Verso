@@ -42,8 +42,14 @@ import it.zoryon.verso.domain.model.YouTubeVideoModel
 fun FullPlayer(
     video: YouTubeVideoModel,
     isPlaying: Boolean,
+    position: Long,
+    duration: Long,
+    onSeek: (Float) -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit,
     onPlayPauseClick: () -> Unit,
-    onCollapse: () -> Unit
+    onCollapse: () -> Unit,
+    formatTime: (Long) -> String
 ) {
     Column(
         modifier = Modifier
@@ -95,10 +101,18 @@ fun FullPlayer(
 
         // Slider
         Slider(
-            value = 0f,
-            onValueChange = {},
-            colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
+            value = if (duration > 0) position.toFloat() / duration else 0f,
+            onValueChange = { onSeek(it) },
+            valueRange = 0f..1f
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(formatTime(position))
+            Text(formatTime(duration))
+        }
 
         // Commands row
         Row(
@@ -107,7 +121,7 @@ fun FullPlayer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Skip previous icon
-            IconButton(onClick = {}) {
+            IconButton(onClick = onPrevious) {
                 Icon(Icons.Default.SkipPrevious, contentDescription = null, modifier = Modifier.size(48.dp))
             }
 
@@ -125,7 +139,7 @@ fun FullPlayer(
             }
 
             // Skip next icon
-            IconButton(onClick = {}) {
+            IconButton(onClick = onNext) {
                 Icon(Icons.Default.SkipNext, contentDescription = null, modifier = Modifier.size(48.dp))
             }
         }
