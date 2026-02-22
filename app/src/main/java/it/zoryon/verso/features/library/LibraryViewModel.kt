@@ -29,24 +29,35 @@ class LibraryViewModel @Inject constructor(
         loadSongs()
     }
 
-    private fun loadSongs() {
+    fun loadSongs() {
         viewModelScope.launch {
             val treeUriString = settingsRepository.downloadPath.first()
-
             if (treeUriString == "Seleziona cartella...") return@launch
 
             val treeUri = treeUriString.toUri()
             val directory = DocumentFile.fromTreeUri(context, treeUri) ?: return@launch
+            val files = directory.listFiles().filter { it.type == "audio/mpeg" || it.name?.endsWith(".mp3") == true }
 
-            val files = directory.listFiles()
-                .filter { it.type == "audio/mpeg" }
+            val mapped = files.map { file ->
+                val retriever = android.media.MediaMetadataRetriever()
+                var title = file.name ?: "Unknown"
+                var author = "Unknown Artist"
 
-            val mapped = files.map {
+                try {
+                    retriever.setDataSource(context, file.uri)
+                    title = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_TITLE) ?: title
+                    author = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Local file"
+                } catch (e: Exception) {
+                    // Fallback to filename if file is corrupted or has no tags
+                } finally {
+                    retriever.release()
+                }
+
                 YouTubeVideoModel(
-                    id = it.uri.toString(),
-                    title = it.name ?: "Unknown",
-                    author = "Local file",
-                    thumbnailUrl = "",
+                    id = file.uri.toString(), // the content:// URI for the player
+                    title = title,
+                    author = author,
+                    thumbnailUrl = file.uri.toString(), // use the URI itself to load the embedded art
                     duration = ""
                 )
             }

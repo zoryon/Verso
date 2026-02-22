@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation("com.mpatric:mp3agic:0.9.1")
     implementation("androidx.documentfile:documentfile:1.0.1")
 
     val media3Version = "1.2.1"
